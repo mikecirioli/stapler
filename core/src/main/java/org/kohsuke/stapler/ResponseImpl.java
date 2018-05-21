@@ -133,24 +133,31 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         // WebSphere doesn't apparently handle relative URLs, so
         // to be safe, always resolve relative URLs to absolute URLs by ourselves.
         // see http://www.nabble.com/Hudson%3A-1.262%3A-Broken-link-using-update-manager-to21067157.html
-        if(url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/")) {
-            // absolute URLs
-            super.sendRedirect(url);
+        if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/")) {
+            // absolute URLs;
+            // set response code = 307, which instructs the client that it should not
+            // change the original request method
+            sendRedirect(SC_TEMPORARY_REDIRECT, url);
             return;
         }
 
         // example: /foo/bar/zot + ../abc -> /foo/bar/../abc
         String base = Stapler.getCurrentRequest().getRequestURI();
-        base = base.substring(0,base.lastIndexOf('/')+1);
-        if(!url.equals("."))
+        base = base.substring(0, base.lastIndexOf('/') + 1);
+        if (!url.equals("."))
             base += url;
-        super.sendRedirect(base);
+        // set response code = 307, which instructs the client that it should not
+        // change the original request method
+        sendRedirect(SC_TEMPORARY_REDIRECT, base);
     }
 
     public void sendRedirect2(@Nonnull String url) throws IOException {
         // Tomcat doesn't encode URL (servlet spec isn't very clear on it)
         // so do the encoding by ourselves
-        sendRedirect(encode(url));
+
+        // Use response code 307 to instruct the client that it should not
+        // change the original request method
+        sendRedirect(SC_TEMPORARY_REDIRECT, encode(url));
     }
 
     public void sendRedirect(int statusCode, @Nonnull String url) throws IOException {
