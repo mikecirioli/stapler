@@ -56,5 +56,11 @@ public class ResponseImplTest {
             verify(rawResponse).setStatus(SC_SEE_OTHER);
             verify(rawResponse).setHeader("Location", "https://jenkins-ci.org/");
         }
+
+        public void testRedirectIsHTTP307ByDefault() throws IOException {
+            response.sendRedirect("https://jenkins-ci.org/");
+            verify(rawResponse).setStatus(SC_TEMPORARY_REDIRECT);
+            verify(rawResponse).setHeader("Location", "https://jenkins-ci.org/");
+        }
     }
 }
